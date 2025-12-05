@@ -9,9 +9,24 @@ const api = require('./routes/api')
 
 const app = express();
 
-app.use(cors(
-    {origin:'http://localhost:3000'}
-));
+// CORS configuration - allows requests from localhost and production frontend
+const allowedOrigins = [
+  'http://localhost:3000',
+  process.env.CLIENT_URL // Your Vercel frontend URL
+].filter(Boolean); // Remove undefined values
+
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or Postman)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) === -1 && !process.env.NODE_ENV === 'development') {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
+}));
 
 app.use(morgan('combined'))
 
