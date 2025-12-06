@@ -17,11 +17,16 @@ const PORT = process.env.PORT || 8000;
 const server = http.createServer(app);
 
 async function startServer() {
-  await mongoConnect();
-  await loadPlanetsData();
-  await loadLaunchData();
+  try {
+    await mongoConnect();
+    await loadPlanetsData();
+    await loadLaunchData();
+  } catch (err) {
+    console.error('Error during startup:', err);
+    console.log('Server will start anyway to bind to port...');
+  }
 
-  server.listen(PORT, () => {
+  server.listen(PORT, '0.0.0.0', () => {
     console.log(`Listening on port ${PORT}...`);
   });
 }
